@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Editar | EcoPonto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/Editar.css">
+  <script src="script/Editar.js"></script>
+  <script src="https://unpkg.com/imask"></script>
+</head>
+
+<body>
+
+  <div class="mobile-warning">
+    Esta aplicação está disponível apenas para telas maiores que 1024px.
+  </div>  
+
+  <header>
+    <a class="logo" href="Inicio.html">
+      <img src="./assets/logo.png" alt="Logotipo">
+    </a>
+    <div class="back">
+      <img src="./assets/seta.png" alt="Voltar">
+      <a class="back-link" href="Inicio.html">Voltar para home</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Editar ponto de coleta</h1>
+
+    <!-- Upload -->
+    <section>
+      <label for="fileInput">
+        <div class="upload" style="cursor: pointer;">
+          <img id="preview" src="./assets/upload.png" alt="Carregar imagem" />
+          <p>Imagem do estabelecimento</p>
+        </div>
+      </label>
+      <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    </section>
+
+    <!-- Dados -->
+    <section>
+      <div>
+        <h2>Dados</h2>
+        <label for="nome">Nome da entidade</label>
+        <input type="text" id="nome" class="input-custom" placeholder="">
+
+        <label for="email">E-mail</label>
+        <input type="email" id="email" class="input-custom" placeholder="">
+
+        <label for="whatsapp">WhatsApp</label>
+        <input type="text" id="whatsapp" class="input-custom" placeholder="">
+      </div>
+    </section>
+
+    <!-- Endereço -->
+    <section>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Endereço</h2>
+        <small>Selecione o endereço no mapa</small>
+      </div>
+      <div id="map" style="background-color:#f0f0f5">
+      </div>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""></script>
+
+      <div class="form-row">
+        <label for="cep">CEP</label>
+        <input type="text" id="cep" class="input-custom">
+      </div>
+
+      <div class="form-row">
+        <label for="complemento">Complemento</label>
+        <input type="text" id="complemento" class="input-custom">
+      </div>
+    </section>
+
+    <!-- Horários de Funcionamento -->
+    <section class="horarios-funcionamento">
+      <h2>Horários de Funcionamento</h2>
+
+      <div class="dias-container">
+        <div class="dia">
+          <span>Domingo (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="domingo_inicio">
+            <input type="time" name="domingo_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="domingo_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Segunda (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="segunda_inicio">
+            <input type="time" name="segunda_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="segunda_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Terça (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="terca_inicio">
+            <input type="time" name="terca_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="terca_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Quarta (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="quarta_inicio">
+            <input type="time" name="quarta_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="quarta_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Quinta (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="quinta_inicio">
+            <input type="time" name="quinta_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="quinta_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Sexta (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="sexta_inicio">
+            <input type="time" name="sexta_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="sexta_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+
+        <div class="dia">
+          <span>Sábado (Início/Fim)</span>
+          <div class="horarios">
+            <input type="time" name="sabado_inicio">
+            <input type="time" name="sabado_fim">
+          </div>
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="sabado_disable">
+            <span>Desabilitar</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Itens de coleta -->
+    <section>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Ítens de coleta</h2>
+        <small>Selecione um ou mais ítens abaixo</small>
+      </div>
+      <div class="items-grid">
+        <div class="item">
+          <img src="./assets/residuos_reciclavel.png" alt="Resíduos Recicláveis">
+          <span>Resíduos Recicláveis</span>
+        </div>
+        <div class="item">
+          <img src="./assets/residuos_organicos.png" alt="Resíduos Orgânicos">
+          <span>Resíduos Orgânicos</span>
+        </div>
+        <div class="item">
+          <img src="./assets/residuos_eletronicos.png" alt="Resíduos Eletrônicos">
+          <span>Resíduos Eletrônicos</span>
+        </div>
+        <div class="item">
+          <img src="./assets/pilhas_baterias.png" alt="Pilhas e Baterias">
+          <span>Pilhas e Baterias</span>
+        </div>
+        <div class="item">
+          <img src="./assets/oleo_de_cozinha.png" alt="Óleo de Cozinha">
+          <span>Óleo de Cozinha</span>
+        </div>
+        <div class="item">
+          <img src="./assets/lampadas.png" alt="Lâmpadas">
+          <span>Lâmpadas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Botão -->
+    <button class="button-submit">Alterar</button>
+    <button class="button-submit">Deletar</button>
+  </div>
+
+  <!-- Modal de confirmação genérico -->
+  <div id="confirm-modal" class="modal hidden">
+    <div class="confirm-content">
+      <p id="confirm-text">Tem certeza?</p>
+      <div class="confirm-buttons">
+        <button id="confirm-action" class="confirm-btn"></button>
+        <button id="cancel-action" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="success-modal" class="modal hidden">
+    <div class="modal-content">
+      <img src="./assets/check.png" alt="Check" />
+      <p id="success-message">Mensagem aqui</p>
+    </div>
+  </div>
+</body>
+</html>
