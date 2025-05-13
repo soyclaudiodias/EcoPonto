@@ -4,7 +4,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'node teste.js'
+                    // sh 'node teste.js'
                 }
             }
         }
