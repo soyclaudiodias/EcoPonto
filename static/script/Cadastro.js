@@ -265,15 +265,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Coleta os horários de funcionamento
         const diasSemana = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
         diasSemana.forEach(dia => {
-          const checkbox = document.getElementById(`${dia}_disable`).value;
+          const checkbox = document.getElementById(`${dia}_disable`);
           const horaInicio = document.getElementById(`${dia}_inicio`).value;
           const horaFim = document.getElementById(`${dia}_fim`).value;
 
-          if (checkbox && !checkbox.checked) { // Se o dia não estiver desabilitado
-            if (horaInicio && horaFim && horaInicio.value && horaFim.value) {
+          if (checkbox && !checkbox.checked) {
+            if (horaInicio && horaFim) {
               formData.append('dias[]', dia);
-              formData.append('hora_inicio[]', horaInicio.value);
-              formData.append('hora_fim[]', horaFim.value);
+              formData.append('hora_inicio[]', horaInicio);
+              formData.append('hora_fim[]', horaFim);
             }
           }
         });
@@ -336,4 +336,96 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("nome");
+  const cardsSection = document.querySelector(".cards");
+  const subtitle = document.querySelector(".subtitle");
+
+  function normalizar(texto) {
+    return texto
+      .toLowerCase()
+      .normalize("NFD") // separa acentos das letras
+      .replace(/[\u0300-\u036f]/g, ""); // remove acentos
+  }
+
+  // Função para carregar os pontos de coleta do servidor
+  function carregarPontos() {
+    fetch('/consultar')
+      .then(response => response.json())
+      .then(pontos => {
+        // Preencher a seção de cards com os pontos
+        cardsSection.innerHTML = ''; // Limpar a seção antes de preencher
+        let count = 0;
+        
+        pontos.forEach(ponto => {
+          // Criar o HTML do card
+          const card = document.createElement('a');
+          card.classList.add('card');
+          card.href = `Editar.html?id=${ponto.id}`; // Passar o ID para edição
+          
+          const img = document.createElement('img');
+          img.src = ponto.imagem ? `/uploads/${ponto.imagem}` : 'assets/default-image.png'; // Ajustar conforme o caminho da imagem
+          img.alt = ponto.nome;
+
+          const h2 = document.createElement('h2');
+          h2.textContent = ponto.nome;
+
+          const category = document.createElement('p');
+          category.classList.add('category');
+          category.innerHTML = `<strong>${ponto.categoria}</strong>`;
+
+          const address = document.createElement('p');
+          address.classList.add('address');
+          address.innerHTML = ponto.endereco;
+
+          card.appendChild(img);
+          card.appendChild(h2);
+          card.appendChild(category);
+          card.appendChild(address);
+
+          cardsSection.appendChild(card);
+          count++;
+        });
+
+        subtitle.innerHTML = `<strong>${count} ponto${count !== 1 ? "s" : ""}</strong> encontrado${count !== 1 ? "s" : ""}`;
+      })
+      .catch(error => {
+        console.error('Erro ao carregar pontos:', error);
+      });
+  }
+
+  // Filtrar cards com base na pesquisa
+  function filtrarCards() {
+    const termo = normalizar(input.value.trim());
+    const regex = new RegExp(`\\b${termo}`, "i"); // palavra que começa com o termo
+    let count = 0;
+
+    const cards = document.querySelectorAll(".card");
+
+    cards.forEach(card => {
+      const titulo = normalizar(card.querySelector("h2").textContent);
+      const categoria = normalizar(card.querySelector(".category").textContent);
+      const endereco = normalizar(card.querySelector(".address").textContent);
+
+      const matchTitulo = regex.test(titulo);
+      const matchCategoria = regex.test(categoria);
+      const matchEndereco = regex.test(endereco);
+
+      if (matchTitulo || matchCategoria || matchEndereco) {
+        card.style.display = "block";
+        count++;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    subtitle.innerHTML = `<strong>${count} ponto${count !== 1 ? "s" : ""}</strong> encontrado${count !== 1 ? "s" : ""}`;
+  }
+
+  // Carregar pontos ao carregar a página
+  carregarPontos();
+
+  input.addEventListener("input", filtrarCards);
 });

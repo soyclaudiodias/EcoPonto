@@ -37,3 +37,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.addEventListener("input", filtrarCards);
   });
+  
+window.onload = function() {
+   fetch('/consultar')
+     .then(response => response.json())
+     .then(data => {
+       console.log(data); // Verifique se os dados estão chegando corretamente no console
+       const cardsContainer = document.querySelector('.cards');
+       cardsContainer.innerHTML = ''; // Limpa qualquer conteúdo existente
+
+       data.forEach(ponto => {
+         const card = document.createElement('a');
+         card.href = 'Editar.html';
+         card.classList.add('card');
+
+         const img = document.createElement('img');
+         img.src = `/uploads/${ponto.imagem}`; // Caminho para a imagem
+         img.alt = ponto.nome;
+
+         const h2 = document.createElement('h2');
+         h2.textContent = ponto.nome;
+
+         const category = document.createElement('p');
+         category.classList.add('category');
+         category.innerHTML = `<strong>${ponto.categoria}</strong>`;
+
+         const address = document.createElement('p');
+         address.classList.add('address');
+         address.innerHTML = `${ponto.endereco}`;
+
+         card.appendChild(img);
+         card.appendChild(h2);
+         card.appendChild(category);
+         card.appendChild(address);
+
+         cardsContainer.appendChild(card);
+       });
+     })
+     .catch(error => console.error('Erro ao carregar pontos de coleta:', error));
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inputNome = document.getElementById('nome');
+  const container = document.getElementById('cards-container');
+  const totalPontos = document.getElementById('total-pontos');
+
+  fetch('/api/pontos')
+    .then(res => res.json())
+    .then(pontos => {
+      renderizarPontos(pontos);
+
+      inputNome.addEventListener('input', () => {
+        const termo = inputNome.value.toLowerCase();
+        const filtrados = pontos.filter(p => p.nome.toLowerCase().includes(termo));
+        renderizarPontos(filtrados);
+      });
+    });
+
+  function renderizarPontos(pontos) {
+    container.innerHTML = '';
+    totalPontos.textContent = `${pontos.length} ponto${pontos.length !== 1 ? 's' : ''} encontrado${pontos.length !== 1 ? 's' : ''}`;
+    
+    pontos.forEach(ponto => {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = `/editar?id=${ponto.id}`;
+      card.innerHTML = `
+        <img src="/uploads/${ponto.imagem || 'default.png'}" alt="${ponto.nome}">
+        <h2>${ponto.nome}</h2>
+        <p class="category"><strong>${ponto.categorias || 'Sem categorias'}</strong></p>
+        <p class="address">
+          ${ponto.complemento || 'Endereço não informado'}<br>
+          CEP: ${ponto.cep || '---'}<br>
+          Lat: ${ponto.latitude}, Long: ${ponto.longitude}
+        </p>
+      `;
+      container.appendChild(card);
+    });
+  }
+});

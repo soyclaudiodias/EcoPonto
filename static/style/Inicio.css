@@ -122,9 +122,9 @@ header {
 }
 
 .image-content img {
-  max-width: 130%;
+  max-width: 100%;
   height: auto;
-  margin-top: 100px;
+  margin-top: 5%;
 }
 
 .mobile-warning {
