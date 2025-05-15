@@ -26,7 +26,7 @@ def uploaded_file(filename):
 def cadastrar_form():
     if request.method == 'GET':
         return render_template('Cadastro.html')
-    
+
     try:
         nome = request.form.get('nome')
         email = request.form.get('email')
@@ -35,13 +35,54 @@ def cadastrar_form():
         complemento = request.form.get('complemento')
         latitude_str = request.form.get('latitude')
         longitude_str = request.form.get('longitude')
+        endereco = request.form.get('endereco')
+
+# Coleta os valores dos checkboxes
+        reciclaveis = request.form.get('reciclaveis') == 'on'
+        organicos = request.form.get('organicos') == 'on'
+        eletronicos = request.form.get('eletronicos') == 'on'
+        pilhas_baterias = request.form.get('pilhas_baterias') == 'on'
+        oleo_cozinha = request.form.get('oleo_cozinha') == 'on'
+        lampadas = request.form.get('lampadas') == 'on'
+
+# Cria lista de resíduos selecionados
+        itens_selecionados = []
+
+        if reciclaveis:
+            itens_selecionados.append("Recicláveis")
+        if organicos:
+            itens_selecionados.append("Orgânicos")
+        if eletronicos:
+            itens_selecionados.append("Eletrônicos")
+        if pilhas_baterias:
+            itens_selecionados.append("Pilhas e Baterias")
+        if oleo_cozinha:
+            itens_selecionados.append("Óleo de Cozinha")
+        if lampadas:
+            itens_selecionados.append("Lâmpadas")
+
+        # Impressão no terminal
+        if itens_selecionados:
+            print("Itens selecionados:", ", ".join(itens_selecionados))
+        else:
+            print("Nenhum item de coleta foi selecionado.")
+
+
+
+        print("Resíduos selecionados:")
+        print(f"  Recicláveis: {reciclaveis}")
+        print(f"  Orgânicos: {organicos}")
+        print(f"  Eletrônicos: {eletronicos}")
+        print(f"  Pilhas e Baterias: {pilhas_baterias}")
+        print(f"  Óleo de Cozinha: {oleo_cozinha}")
+        print(f"  Lâmpadas: {lampadas}")
 
         if not latitude_str or not longitude_str:
             return jsonify({"erro": "Latitude e Longitude são obrigatórios!"}), 400
 
         latitude = float(latitude_str)
         longitude = float(longitude_str)
-        itens = request.form.getlist('itens')
+
         imagem = request.files.get('imagem')
         imagem_filename = None
 
@@ -53,29 +94,15 @@ def cadastrar_form():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO ponto_coleta (nome, email, whatsapp, cep, complemento, imagem, latitude, longitude)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nome, email, whatsapp, cep, complemento, imagem_filename, latitude, longitude))
-
-        ponto_id = cursor.lastrowid
-
-        for item_id in itens:
-            cursor.execute("""
-                INSERT INTO ponto_itens (ponto_id, item_id)
-                VALUES (%s, %s)
-            """, (ponto_id, item_id))
-
-        dias = request.form.getlist('dias')
-        horarios_inicio = request.form.getlist('hora_inicio')
-        horarios_fim = request.form.getlist('hora_fim')
-
-        for dia, inicio, fim in zip(dias, horarios_inicio, horarios_fim):
-            if request.form.get(f'{dia}_disable'):
-                continue
-            cursor.execute("""
-                INSERT INTO horarios_funcionamento (ponto_id, dia_semana, hora_inicio, hora_fim)
-                VALUES (%s, %s, %s, %s)
-            """, (ponto_id, dia, inicio, fim))
+            INSERT INTO ponto_coleta (
+                nome, email, whatsapp, cep, complemento, imagem, latitude, longitude, endereco,
+                reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas
+            ) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            nome, email, whatsapp, cep, complemento, imagem_filename, latitude, longitude, endereco,
+            reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas
+        ))
 
         conn.commit()
         cursor.close()
@@ -109,7 +136,15 @@ def editar_ponto(id):
         complemento = request.form.get('complemento')
         latitude = float(request.form.get('latitude'))
         longitude = float(request.form.get('longitude'))
-        itens = request.form.getlist('itens')
+        endereco = request.form.get('endereco')
+
+        reciclaveis = request.form.get('reciclaveis')
+        organicos = request.form.get('organicos')
+        eletronicos = request.form.get('eletronicos')
+        pilhas_baterias = request.form.get('pilhas_baterias')
+        oleo_cozinha = request.form.get('oleo_cozinha')
+        lampadas = request.form.get('lampadas')
+
         imagem = request.files.get('imagem')
 
         conn = conectar()
@@ -119,31 +154,28 @@ def editar_ponto(id):
             imagem_filename = str(uuid.uuid4()) + os.path.splitext(imagem.filename)[1]
             imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], imagem_filename))
             cursor.execute("""
-                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s, imagem=%s, latitude=%s, longitude=%s
+                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s,
+                imagem=%s, latitude=%s, longitude=%s, endereco=%s,
+                reciclaveis=%s, organicos=%s, eletronicos=%s, pilhas_baterias=%s, oleo_cozinha=%s, lampadas=%s
                 WHERE id=%s
-            """, (nome, email, whatsapp, cep, complemento, imagem_filename, latitude, longitude, id))
+            """, (
+                nome, email, whatsapp, cep, complemento,
+                imagem_filename, latitude, longitude, endereco,
+                reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas,
+                id
+            ))
         else:
             cursor.execute("""
-                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s, latitude=%s, longitude=%s
+                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s,
+                latitude=%s, longitude=%s, endereco=%s,
+                reciclaveis=%s, organicos=%s, eletronicos=%s, pilhas_baterias=%s, oleo_cozinha=%s, lampadas=%s
                 WHERE id=%s
-            """, (nome, email, whatsapp, cep, complemento, latitude, longitude, id))
-
-        cursor.execute("DELETE FROM ponto_itens WHERE ponto_id = %s", (id,))
-        for item_id in itens:
-            cursor.execute("INSERT INTO ponto_itens (ponto_id, item_id) VALUES (%s, %s)", (id, item_id))
-
-        cursor.execute("DELETE FROM horarios_funcionamento WHERE ponto_id = %s", (id,))
-        dias = request.form.getlist('dias')
-        horarios_inicio = request.form.getlist('hora_inicio')
-        horarios_fim = request.form.getlist('hora_fim')
-
-        for dia, inicio, fim in zip(dias, horarios_inicio, horarios_fim):
-            if request.form.get(f'{dia}_disable'):
-                continue
-            cursor.execute("""
-                INSERT INTO horarios_funcionamento (ponto_id, dia_semana, hora_inicio, hora_fim)
-                VALUES (%s, %s, %s, %s)
-            """, (id, dia, inicio, fim))
+            """, (
+                nome, email, whatsapp, cep, complemento,
+                latitude, longitude, endereco,
+                reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas,
+                id
+            ))
 
         conn.commit()
         cursor.close()
@@ -169,12 +201,14 @@ def buscar():
         dados = {
             'id': ponto[0],
             'nome': ponto[1],
-            'email': ponto[2],  # ajuste conforme a sua tabela
+            'email': ponto[2],
             'whatsapp': ponto[3],
             'cep': ponto[4],
             'complemento': ponto[5],
-            'latitude': ponto[6],
-            'longitude': ponto[7]
+            'imagem': ponto[6],
+            'latitude': float(ponto[7]),
+            'longitude': float(ponto[8]),
+            'endereco': ponto[9]
         }
         return jsonify(dados)
     else:
@@ -187,12 +221,7 @@ def listar_pontos():
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT pc.id, pc.nome, pc.imagem, pc.complemento, pc.cep, pc.latitude, pc.longitude,
-                GROUP_CONCAT(i.nome SEPARATOR ', ') AS categorias
-            FROM ponto_coleta pc
-            LEFT JOIN ponto_itens pi ON pc.id = pi.ponto_id
-            LEFT JOIN item i ON pi.item_id = i.id
-            GROUP BY pc.id
+            SELECT * FROM ponto_coleta
         """)
 
         pontos = cursor.fetchall()
@@ -208,11 +237,7 @@ def remover(id):
     try:
         conn = conectar()
         cursor = conn.cursor()
-
-        cursor.execute("DELETE FROM ponto_itens WHERE ponto_id = %s", (id,))
-        cursor.execute("DELETE FROM horarios_funcionamento WHERE ponto_id = %s", (id,))
         cursor.execute("DELETE FROM ponto_coleta WHERE id = %s", (id,))
-
         conn.commit()
         cursor.close()
         conn.close()

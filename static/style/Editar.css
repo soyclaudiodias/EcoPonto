@@ -42,11 +42,13 @@ header {
   height: 40px;
 }
 
-.back {
-  display: flex;
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px; /* Espaço entre o ícone e o texto */
+  text-decoration: none;
+  font-weight: bold;
+  color: #322153; /* Altere conforme o tema */
 }
 
 .back img {

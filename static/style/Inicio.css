@@ -10,7 +10,7 @@ body {
   color: #322153;
   padding: 2rem 4rem;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* Centraliza e limita o conteúdo principal */
@@ -51,9 +51,12 @@ header {
 }
 
 .back-link {
-  color: #322153;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* espaço entre ícone e texto */
   text-decoration: none;
   font-weight: bold;
+  color: #322153; /* ajuste conforme o tema */
 }
 
 .text-content {
@@ -122,7 +125,7 @@ header {
 }
 
 .image-content img {
-  max-width: 100%;
+  max-width: 120%;
   height: auto;
   margin-top: 5%;
 }

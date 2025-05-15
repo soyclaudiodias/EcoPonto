@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Criar o HTML do card
           const card = document.createElement('a');
           card.classList.add('card');
-          card.href = `Editar.html?id=${ponto.id}`; // Passar o ID para edição
+          card.href = `/editar/${ponto.id}`; // Passar o ID para edição
           
           const img = document.createElement('img');
           img.src = ponto.imagem ? `/uploads/${ponto.imagem}` : 'assets/default-image.png'; // Ajustar conforme o caminho da imagem
