@@ -23,11 +23,13 @@
   <!-- Cabeçalho com logo e botão de voltar -->
   <header>
     <a class="logo" href="Inicio.html">
-      <img src="../static/assets/logo.png" alt="Logotipo">
+      <img src="./static/assets/logo.png" alt="Logotipo">
     </a>
     <div class="back">
-      <img src="../static/assets/seta.png" alt="Voltar">
-      <a class="back-link" href="Inicio.html">Voltar para home</a>
+      <a class="back-link" href="../">
+        <img src="./static/assets/seta.png" alt="Voltar">
+        Voltar para home
+      </a>
     </div>
   </header>
 
@@ -92,7 +94,7 @@
         </div>
       </section>
 
-      <!-- Horários de Funcionamento -->
+      <!-- Horários de Funcionamento
       <section class="horarios-funcionamento">
         <h2>Horários de Funcionamento</h2>
         <div class="dias-container">
@@ -189,7 +191,7 @@
           </div>
 
         </div>
-      </section>
+      </section> -->
 
       <!-- Itens de coleta -->
       <section>
@@ -200,32 +202,42 @@
 
         <!-- Grade de ícones dos resíduos -->
         <div class="items-grid">
-          <div class="item">
+          <label class="item">
+            <input type="checkbox" name="reciclaveis" />
             <img src="../static/assets/residuos_reciclavel.png" alt="Resíduos Recicláveis">
-            <span>Resíduos Recicláveis</span>
-          </div>
-          <div class="item">
+            <span>Recicláveis</span>
+          </label>
+
+          <label class="item">
+            <input type="checkbox" name="organicos" />
             <img src="../static/assets/residuos_organicos.png" alt="Resíduos Orgânicos">
-            <span>Resíduos Orgânicos</span>
-          </div>
-          <div class="item">
+            <span>Orgânicos</span>
+          </label>
+
+          <label class="item">
+            <input type="checkbox" name="eletronicos" />
             <img src="../static/assets/residuos_eletronicos.png" alt="Resíduos Eletrônicos">
-            <span>Resíduos Eletrônicos</span>
-          </div>
-          <div class="item">
+            <span>Eletrônicos</span>
+          </label>
+
+          <label class="item">
+            <input type="checkbox" name="pilhas_baterias" />
             <img src="../static/assets/pilhas_baterias.png" alt="Pilhas e Baterias">
             <span>Pilhas e Baterias</span>
-          </div>
-          <div class="item">
+          </label>
+
+          <label class="item">
+            <input type="checkbox" name="oleo_cozinha" />
             <img src="../static/assets/oleo_de_cozinha.png" alt="Óleo de Cozinha">
             <span>Óleo de Cozinha</span>
-          </div>
-          <div class="item">
+          </label>
+
+          <label class="item">
+            <input type="checkbox" name="lampadas" />
             <img src="../static/assets/lampadas.png" alt="Lâmpadas">
             <span>Lâmpadas</span>
-          </div>
+          </label>
         </div>
-      </section>
 
       <!-- Botão de envio -->
       <button class="button-submit">Cadastrar</button>

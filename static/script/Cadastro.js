@@ -1,4 +1,5 @@
 let map, marker;
+let enderecoAtual = '';
 
 // ============================
 // INICIALIZAÇÃO DO MAPA COM LOCALIZAÇÃO DO USUÁRIO
@@ -9,7 +10,6 @@ if (navigator.geolocation) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
-      // Cria o mapa
       map = L.map('map', {
         center: [latitude, longitude],
         zoom: 16,
@@ -17,49 +17,57 @@ if (navigator.geolocation) {
         maxZoom: 19
       });
 
-      // Adiciona o tile layer (OpenStreetMap)
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 10,
         maxZoom: 19,
       }).addTo(map);
 
-      // Cria marcador na posição atual
       marker = L.marker([latitude, longitude]).addTo(map);
 
-      // Busca o CEP da localização inicial
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
         .then(response => response.json())
         .then(data => {
           if (data?.address?.postcode) {
             document.getElementById('cep').value = data.address.postcode;
           }
+
+          if (data?.address) {
+            const rua = data.address.road || '';
+            const bairro = data.address.suburb || '';
+            const cidade = data.address.city || data.address.town || data.address.village || '';
+            const estado = data.address.state || '';
+            enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
+          }
         })
         .catch(error => console.error("Erro ao buscar CEP:", error));
 
-      // Evento de clique no mapa
       map.on('click', async function (e) {
         const { lat, lng } = e.latlng;
 
-        // Move ou cria marcador
         if (!marker) {
           marker = L.marker([lat, lng]).addTo(map);
         } else {
           marker.setLatLng([lat, lng]);
         }
 
-        // Busca CEP da nova localização
         try {
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
           const data = await response.json();
 
           if (data?.address?.postcode) {
             document.getElementById('cep').value = data.address.postcode;
-          } else {
-            alert("Não foi possível encontrar o CEP para esta localização.");
+          }
+
+          if (data?.address) {
+            const rua = data.address.road || '';
+            const bairro = data.address.suburb || '';
+            const cidade = data.address.city || data.address.town || data.address.village || '';
+            const estado = data.address.state || '';
+            enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
           }
         } catch (error) {
-          console.error("Erro ao buscar CEP por coordenadas:", error);
-          alert("Erro ao tentar obter o CEP.");
+          console.error("Erro ao buscar endereço por coordenadas:", error);
+          alert("Erro ao tentar obter o endereço.");
         }
       });
     },
@@ -75,7 +83,6 @@ if (navigator.geolocation) {
 // EVENTOS AO CARREGAR A PÁGINA
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
-  // === Máscaras de input ===
   const whatsappInput = document.getElementById("whatsapp");
   const cepInput = document.getElementById("cep");
 
@@ -85,18 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (cepInput) {
     IMask(cepInput, { mask: '00000-000' });
-  }
 
-  // === Seleção de itens na grid ===
-  const items = document.querySelectorAll('.items-grid .item');
-  items.forEach(item => {
-    item.addEventListener('click', () => {
-      item.classList.toggle('selected');
-    });
-  });
-
-  // === Busca endereço ao perder foco do CEP ===
-  if (cepInput) {
     cepInput.addEventListener('blur', async () => {
       const cep = cepInput.value.replace(/\D/g, '');
       if (cep.length === 8) {
@@ -105,8 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const data = await response.json();
 
           if (!data.erro) {
-            const address = `${data.logradouro}, ${data.localidade}, ${data.uf}`;
-            const location = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+            enderecoAtual = `${data.logradouro}, ${data.localidade}, ${data.uf}`;
+
+            const location = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoAtual)}`);
             const geo = await location.json();
 
             if (geo.length > 0) {
@@ -127,38 +124,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === Submissão de formulário ===
   const botaoCadastrar = document.querySelector('.button-submit');
   const modal = document.getElementById('success-modal');
-  const formData = new FormData();
 
   if (botaoCadastrar) {
-    botaoCadastrar.addEventListener('click', async (event) => {
+    document.querySelector('form').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const nome = document.getElementById("nome").value;
-      const email = document.getElementById("email").value;
-      const whatsapp = document.getElementById("whatsapp").value;
-      const cep = document.getElementById("cep").value;
-      const complemento = document.getElementById("complemento").value;
+      const formData = new FormData();
 
-      formData.append('nome', nome);
-      formData.append('email', email);
-      formData.append('whatsapp', whatsapp);
-      formData.append('cep', cep);
-      formData.append('complemento', complemento);
+      // Campos básicos
+      formData.append('nome', document.getElementById("nome").value);
+      formData.append('email', document.getElementById("email").value);
+      formData.append('whatsapp', document.getElementById("whatsapp").value);
+      formData.append('cep', document.getElementById("cep").value);
+      formData.append('complemento', document.getElementById("complemento").value);
+      formData.append('endereco', enderecoAtual);
 
+      // Coordenadas
       if (marker) {
         const latlng = marker.getLatLng();
         formData.append('latitude', latlng.lat);
         formData.append('longitude', latlng.lng);
       }
 
-      const imagemInput = document.getElementById("imagem");
+      // Imagem
+      const imagemInput = document.getElementById("fileInput");
       if (imagemInput?.files.length > 0) {
         formData.append('imagem', imagemInput.files[0]);
       }
 
+      // ✅ Adiciona checkboxes selecionados
+      const checkboxes = document.querySelectorAll('.items-grid input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          formData.append(checkbox.name, 'on');
+        }
+      });
+
+      // Envio para o backend
       try {
         const response = await fetch('/cadastrar', {
           method: 'POST',
@@ -170,9 +174,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.ok) {
           modal.classList.remove('hidden');
+
+          // Após 2 segundos, redireciona para a página de consulta
           setTimeout(() => {
             modal.classList.add('hidden');
-          }, 3000);
+            window.location.href = '/consultar';
+          }, 2000);
         } else {
           alert(resultado.erro || "Erro ao cadastrar.");
         }
@@ -184,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === Upload de imagem com pré-visualização ===
   const fileInput = document.getElementById('fileInput');
   const uploadDiv = document.querySelector('.upload');
   const previewImg = document.getElementById('preview');
@@ -204,107 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ============================
-  // HABILITA/DESABILITA HORÁRIOS DE FUNCIONAMENTO POR DIA
-  // ============================
-  document.addEventListener("DOMContentLoaded", function () {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name$="_disable"]');
-
-    checkboxes.forEach(checkbox => {
-      checkbox.addEventListener("change", function () {
-        const dayDiv = checkbox.closest(".dia");
-        const inputs = dayDiv.querySelectorAll('input[type="time"]');
-
-        if (checkbox.checked) {
-          dayDiv.classList.add("disabled-day");
-          inputs.forEach(input => input.disabled = true);
-        } else {
-          dayDiv.classList.remove("disabled-day");
-          inputs.forEach(input => input.disabled = false);
-        }
-      });
-    });
-  });
-
-  // ============================
-  // FORMULÁRIO - COLETA DE DADOS DOS DIAS E HORÁRIOS
-  // ============================
-  document.addEventListener("DOMContentLoaded", () => {
-    const botaoCadastrar = document.querySelector('.button-submit');
-    const modal = document.getElementById('success-modal');
-    const formData = new FormData();
-
-    if (botaoCadastrar) {
-      botaoCadastrar.addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        // Coleta os dados do formulário
-        const nome = document.getElementById("nome").value;
-        const email = document.getElementById("email").value;
-        const whatsapp = document.getElementById("whatsapp").value;
-        const cep = document.getElementById("cep").value;
-        const complemento = document.getElementById("complemento").value;
-
-        formData.append('nome', nome);
-        formData.append('email', email);
-        formData.append('whatsapp', whatsapp);
-        formData.append('cep', cep);
-        formData.append('complemento', complemento);
-
-        if (marker) {
-          const latlng = marker.getLatLng();
-          formData.append('latitude', latlng.lat);
-          formData.append('longitude', latlng.lng);
-        }
-
-        const imagemInput = document.getElementById("imagem");
-        if (imagemInput?.files.length > 0) {
-          formData.append('imagem', imagemInput.files[0]);
-        }
-
-        // Coleta os horários de funcionamento
-        const diasSemana = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-        diasSemana.forEach(dia => {
-          const checkbox = document.getElementById(`${dia}_disable`).value;
-          const horaInicio = document.getElementById(`${dia}_inicio`).value;
-          const horaFim = document.getElementById(`${dia}_fim`).value;
-
-          if (checkbox && !checkbox.checked) { // Se o dia não estiver desabilitado
-            if (horaInicio && horaFim && horaInicio.value && horaFim.value) {
-              formData.append('dias[]', dia);
-              formData.append('hora_inicio[]', horaInicio.value);
-              formData.append('hora_fim[]', horaFim.value);
-            }
-          }
-        });
-
-        try {
-          const response = await fetch('/cadastrar', {
-            method: 'POST',
-            body: formData,
-          });
-
-          const resultado = await response.json();
-          console.log("Resposta do servidor:", resultado);
-
-          if (response.ok) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-              modal.classList.add('hidden');
-            }, 3000);
-          } else {
-            alert(resultado.erro || "Erro ao cadastrar.");
-          }
-
-        } catch (err) {
-          console.error("Erro ao enviar dados:", err);
-          alert("Falha ao enviar os dados.");
-        }
-      });
-    }
-  });
-
-  // === Previne envio do formulário ao pressionar Enter ===
   const inputs = document.querySelectorAll('input');
   inputs.forEach(input => {
     input.addEventListener('keydown', function (event) {
@@ -314,26 +219,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-});
 
-// ============================
-// HABILITA/DESABILITA HORÁRIOS DE FUNCIONAMENTO POR DIA
-// ============================
-document.addEventListener("DOMContentLoaded", function () {
-  const checkboxes = document.querySelectorAll('input[type="checkbox"][name$="_disable"]');
+  // === CHECKBOX VISUAL SELEÇÃO ===
+  const itemLabels = document.querySelectorAll('.items-grid .item');
 
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener("change", function () {
-      const dayDiv = checkbox.closest(".dia");
-      const inputs = dayDiv.querySelectorAll('input[type="time"]');
+  itemLabels.forEach(label => {
+    const checkbox = label.querySelector('input[type="checkbox"]');
 
-      if (checkbox.checked) {
-        dayDiv.classList.add("disabled-day");
-        inputs.forEach(input => input.disabled = true);
-      } else {
-        dayDiv.classList.remove("disabled-day");
-        inputs.forEach(input => input.disabled = false);
-      }
+    // Atualiza visualmente quando o checkbox muda
+    checkbox.addEventListener('change', () => {
+      label.classList.toggle('selected', checkbox.checked);
     });
+
+    // Marca visualmente se já estiver selecionado ao carregar
+    if (checkbox.checked) {
+      label.classList.add('selected');
+    }
   });
 });

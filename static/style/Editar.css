@@ -8,12 +8,10 @@ body {
 }
 
 h1 {
-  max-width: 240px;
-  margin: 40px 0;
+  max-width: 400px;
+  margin: 40px 0px;
   font-size: 28px;
   line-height: 1.2;
-  word-break: break-word;
-  font-weight: bold;
 }
 
 .container {
@@ -44,11 +42,13 @@ header {
   height: 40px;
 }
 
-.back {
-  display: flex;
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px; /* Espaço entre o ícone e o texto */
+  text-decoration: none;
+  font-weight: bold;
+  color: #322153; /* Altere conforme o tema */
 }
 
 .back img {
@@ -106,11 +106,17 @@ input[type="email"] {
   margin-bottom: 8px;
 }
 
+/* ======== MAPA ======== */
 #map {
   width: 100%;
   height: 400px;
   border-radius: 8px;
   margin-bottom: 16px;
+  position: relative;
+}
+
+.leaflet-control-attribution {
+  display: none !important;
 }
 
 .form-row {
@@ -259,36 +265,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 input[type="checkbox"]:hover {
   cursor: pointer;
-}
-
-/* Esconde por padrão */
-.mobile-warning {
-  display: none;
-}
-
-/* Quando a tela for menor que 1024px */
-@media (max-width: 1023px) {
-  .mobile-warning {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffcccc;
-    color: #b30000;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-  }
-
-  /* Oculta o conteúdo da aplicação */
-  body > *:not(.mobile-warning) {
-    display: none !important;
-  }
 }
 
 .items-grid .item {

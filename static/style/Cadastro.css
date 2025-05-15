@@ -59,9 +59,12 @@ header {
 }
 
 .back-link {
-  color: #322153;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* Espaço entre o ícone e o texto */
   text-decoration: none;
   font-weight: bold;
+  color: #322153; /* Altere conforme o tema */
 }
 
 /* ======== FORMULÁRIO ======== */
@@ -295,6 +298,12 @@ input[type="checkbox"]:hover {
   cursor: pointer;
 }
 
+.item input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ======== MODAL ======== */
 .modal {
   position: fixed;
@@ -342,4 +351,23 @@ input[type="checkbox"]:hover {
 
 .hidden {
   display: none;
+}
+
+.items-grid .item {
+  background: #e6f7ec;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 64px 48px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.items-grid .item.selected {
+  background-color: #f0fff5;
+  border: 2px solid #2FB86E;
 }
