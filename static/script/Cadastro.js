@@ -4,79 +4,81 @@ let enderecoAtual = '';
 // ============================
 // INICIALIZAÇÃO DO MAPA COM LOCALIZAÇÃO DO USUÁRIO
 // ============================
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-
-      map = L.map('map', {
-        center: [latitude, longitude],
-        zoom: 16,
-        minZoom: 10,
-        maxZoom: 19
-      });
-
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        minZoom: 10,
-        maxZoom: 19,
-      }).addTo(map);
-
-      marker = L.marker([latitude, longitude]).addTo(map);
-
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
-        .then(response => response.json())
-        .then(data => {
-          if (data?.address?.postcode) {
-            document.getElementById('cep').value = data.address.postcode;
+window.onload = function () {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+  
+        map = L.map('map', {
+          center: [latitude, longitude],
+          zoom: 16,
+          minZoom: 10,
+          maxZoom: 19
+        });
+  
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          minZoom: 10,
+          maxZoom: 19,
+        }).addTo(map);
+  
+        marker = L.marker([latitude, longitude]).addTo(map);
+  
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
+          .then(response => response.json())
+          .then(data => {
+            if (data?.address?.postcode) {
+              document.getElementById('cep').value = data.address.postcode;
+            }
+  
+            if (data?.address) {
+              const rua = data.address.road || '';
+              const bairro = data.address.suburb || '';
+              const cidade = data.address.city || data.address.town || data.address.village || '';
+              const estado = data.address.state || '';
+              enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
+            }
+          })
+          .catch(error => console.error("Erro ao buscar CEP:", error));
+  
+        map.on('click', async function (e) {
+          const { lat, lng } = e.latlng;
+  
+          if (!marker) {
+            marker = L.marker([lat, lng]).addTo(map);
+          } else {
+            marker.setLatLng([lat, lng]);
           }
-
-          if (data?.address) {
-            const rua = data.address.road || '';
-            const bairro = data.address.suburb || '';
-            const cidade = data.address.city || data.address.town || data.address.village || '';
-            const estado = data.address.state || '';
-            enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
+  
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+            const data = await response.json();
+  
+            if (data?.address?.postcode) {
+              document.getElementById('cep').value = data.address.postcode;
+            }
+  
+            if (data?.address) {
+              const rua = data.address.road || '';
+              const bairro = data.address.suburb || '';
+              const cidade = data.address.city || data.address.town || data.address.village || '';
+              const estado = data.address.state || '';
+              enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
+            }
+          } catch (error) {
+            console.error("Erro ao buscar endereço por coordenadas:", error);
+            alert("Erro ao tentar obter o endereço.");
           }
-        })
-        .catch(error => console.error("Erro ao buscar CEP:", error));
-
-      map.on('click', async function (e) {
-        const { lat, lng } = e.latlng;
-
-        if (!marker) {
-          marker = L.marker([lat, lng]).addTo(map);
-        } else {
-          marker.setLatLng([lat, lng]);
-        }
-
-        try {
-          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
-          const data = await response.json();
-
-          if (data?.address?.postcode) {
-            document.getElementById('cep').value = data.address.postcode;
-          }
-
-          if (data?.address) {
-            const rua = data.address.road || '';
-            const bairro = data.address.suburb || '';
-            const cidade = data.address.city || data.address.town || data.address.village || '';
-            const estado = data.address.state || '';
-            enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
-          }
-        } catch (error) {
-          console.error("Erro ao buscar endereço por coordenadas:", error);
-          alert("Erro ao tentar obter o endereço.");
-        }
-      });
-    },
-    function () {
-      alert("Não foi possível obter sua localização. Verifique se o acesso à geolocalização está permitido.");
-    }
-  );
-} else {
-  alert("Geolocalização não é suportada pelo seu navegador.");
+        });
+      },
+      function () {
+        alert("Não foi possível obter sua localização. Verifique se o acesso à geolocalização está permitido.");
+      }
+    );
+  } else {
+    alert("Geolocalização não é suportada pelo seu navegador.");
+  }
 }
 
 // ============================
