@@ -366,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
           card.href = `/editar/${ponto.id}`; // Passar o ID para edição
           
           const img = document.createElement('img');
-          img.src = ponto.imagem ? `/uploads/${ponto.imagem}` : 'assets/default-image.png'; // Ajustar conforme o caminho da imagem
+          img.src = ponto.imagem ? `/uploads/${ponto.imagem}` : 'assets/default.jpg'; // Ajustar conforme o caminho da imagem
           img.alt = ponto.nome;
 
           const h2 = document.createElement('h2');
