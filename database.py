@@ -12,10 +12,10 @@ MYSQL_PASSWORD = "1234"
 
 def conectar():
     conexao = mysql.connector.connect(
-        host="MYSQL_HOST",
-        user="MYSQL_USER",
-        password="MYSQL_PASSWORD",
-        database="MYSQL_DATABASE",
-        port="MYSQL_PORT"
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASSWORD,
+        database=MYSQL_DATABASE,
+        port=MYSQL_PORT
     )
     return conexao
