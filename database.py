@@ -9,4 +9,5 @@ def conectar():
         password=os.getenv("MYSQLPASSWORD", "1234"),
         database=os.getenv("MYSQLDATABASE", "railway"),
         port=int(os.getenv("MYSQLPORT", 3306))
-    )return conexao
+    )
+    return conexao
