@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.classList.add("card");
 
       card.innerHTML = `
-        <img src="/uploads/${ponto.imagem || 'default.png'}" alt="${ponto.nome}">
+        <img src="/uploads/${ponto.imagem || 'default.jpg'}" alt="${ponto.nome}">
         <h2>${ponto.nome}</h2>
         <p class="category"><strong>${ponto.categorias || 'Sem categorias'}</strong></p>
         <p class="address">
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = 'card';
       card.href = `/editar/${ponto.id}`;
       card.innerHTML = `
-        <img src="/uploads/${ponto.imagem || 'default.png'}" alt="${ponto.nome}">
+        <img src="/uploads/${ponto.imagem || 'default.jpg'}" alt="${ponto.nome}">
         <h2>${ponto.nome}</h2>
         <p class="category"><strong>${ponto.categorias || 'Sem categorias'}</strong></p>
         <p class="address">
