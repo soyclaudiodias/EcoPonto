@@ -1,6 +1,6 @@
 # database.py
-import mysql.connector
 import os
+import mysql.connector
 
 def conectar():
     conexao = mysql.connector.connect(
@@ -10,4 +10,4 @@ def conectar():
         database=os.getenv("MYSQLDATABASE", "railway"),
         port=int(os.getenv("MYSQLPORT", 3306))
     )
-    return conexao
+    return conexao
