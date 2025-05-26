@@ -1,11 +1,13 @@
 # database.py
+import mysql.connector
+import os
+
 def conectar():
     conexao = mysql.connector.connect(
-        host="mysql.railway.internal",
-        port=3306,
-        user="root",
-        password="1234",
-        database="railway"
+        host=os.getenv("MYSQLHOST", "mysql.railway.internal"),
+        user=os.getenv("MYSQLUSER", "root"),
+        password=os.getenv("MYSQLPASSWORD", "1234"),
+        database=os.getenv("MYSQLDATABASE", "railway"),
+        port=int(os.getenv("MYSQLPORT", 3306))
     )
-    return conexao
-
+    return conexao
