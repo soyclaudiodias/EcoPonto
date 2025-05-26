@@ -6,7 +6,7 @@ import mysql.connector
 # load_dotenv(dotenv_path)
 MYSQL_DATABASE = "railway"
 MYSQL_HOST = "shortline.proxy.rlwy.net"
-MYSQL_PORT = 3306
+MYSQL_PORT = "3306"
 MYSQL_USER = "root"
 MYSQL_PASSWORD = "1234"
 
