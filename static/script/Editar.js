@@ -167,10 +167,7 @@ btnAlterar?.addEventListener("click", async (e) => {
 
 btnDeletar?.addEventListener("click", async () => {
   const pontoId = btnDeletar.dataset.id;
-  const confirmDelete = confirm("Tem certeza que deseja excluir este ponto?");
-  if (confirmDelete) {
-    await deletarPonto(pontoId);
-  }
+  await deletarPonto(pontoId);
 });
 
 // ============================
