@@ -1,9 +1,11 @@
+/* Reset básico para margens, padding e box-sizing */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Estilo geral do corpo da página */
 body {
   font-family: 'Roboto', sans-serif;
   background-color: #f0f0f5;
@@ -13,7 +15,9 @@ body {
   overflow: hidden;
 }
 
-/* Centraliza e limita o conteúdo principal */
+/* ========================
+   Seção Principal (Hero)
+   ======================== */
 .hero {
   display: flex;
   flex-wrap: wrap;
@@ -24,6 +28,9 @@ body {
   margin: 0 auto;
 }
 
+/* ========================
+   Cabeçalho
+   ======================== */
 header {
   display: flex;
   justify-content: space-between;
@@ -33,11 +40,13 @@ header {
   gap: 1rem;
 }
 
+/* Logo */
 .logo img {
   width: 200px;
   height: 40px;
 }
 
+/* Botão de voltar */
 .back {
   display: flex;
   align-items: center;
@@ -53,12 +62,15 @@ header {
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px; /* espaço entre ícone e texto */
+  gap: 6px;
   text-decoration: none;
   font-weight: bold;
-  color: #322153; /* ajuste conforme o tema */
+  color: #322153;
 }
 
+/* ========================
+   Conteúdo de texto
+   ======================== */
 .text-content {
   flex: 1 1 400px;
   margin-top: -80px;
@@ -76,6 +88,9 @@ header {
   margin-bottom: 2rem;
 }
 
+/* ========================
+   Botão de pesquisa
+   ======================== */
 .search-btn {
   text-decoration: none;
   display: flex;
@@ -90,6 +105,7 @@ header {
   max-width: 100%;
 }
 
+/* Ícone do botão */
 .search-btn .icon {
   background-color: #2fb86e;
   display: flex;
@@ -104,6 +120,7 @@ header {
   height: 20px;
 }
 
+/* Texto do botão */
 .search-btn .text {
   background-color: #34cb79;
   color: white;
@@ -114,10 +131,14 @@ header {
   border-radius: 0px 12px 12px 0px;
 }
 
+/* Efeito hover no botão */
 .search-btn:hover .text {
   background-color: #2fb86e;
 }
 
+/* ========================
+   Imagem da página
+   ======================== */
 .image-content {
   flex: 1 1 500px;
   display: flex;
@@ -130,30 +151,9 @@ header {
   margin-top: 5%;
 }
 
+/* ========================
+   Aviso para dispositivos móveis
+   ======================== */
 .mobile-warning {
   display: none;
-}
-
-/* Responsividade geral */
-@media (max-width: 1023px) {
-  .mobile-warning {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffcccc;
-    color: #b30000;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-  }
-
-  body > *:not(.mobile-warning) {
-    display: none !important;
-  }
 }

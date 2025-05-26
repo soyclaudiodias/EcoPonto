@@ -4,80 +4,64 @@ let enderecoAtual = '';
 // ============================
 // INICIALIZAÇÃO DO MAPA COM LOCALIZAÇÃO DO USUÁRIO
 // ============================
-window.onload = function () {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function (position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-  
-        map = L.map('map', {
-          center: [latitude, longitude],
-          zoom: 16,
-          minZoom: 10,
-          maxZoom: 19
-        });
-  
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          minZoom: 10,
-          maxZoom: 19,
-        }).addTo(map);
-  
-        marker = L.marker([latitude, longitude]).addTo(map);
-  
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data?.address?.postcode) {
-              document.getElementById('cep').value = data.address.postcode;
-            }
-  
-            if (data?.address) {
-              const rua = data.address.road || '';
-              const bairro = data.address.suburb || '';
-              const cidade = data.address.city || data.address.town || data.address.village || '';
-              const estado = data.address.state || '';
-              enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
-            }
-          })
-          .catch(error => console.error("Erro ao buscar CEP:", error));
-  
-        map.on('click', async function (e) {
-          const { lat, lng } = e.latlng;
-  
-          if (!marker) {
-            marker = L.marker([lat, lng]).addTo(map);
-          } else {
-            marker.setLatLng([lat, lng]);
-          }
-  
-          try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
-            const data = await response.json();
-  
-            if (data?.address?.postcode) {
-              document.getElementById('cep').value = data.address.postcode;
-            }
-  
-            if (data?.address) {
-              const rua = data.address.road || '';
-              const bairro = data.address.suburb || '';
-              const cidade = data.address.city || data.address.town || data.address.village || '';
-              const estado = data.address.state || '';
-              enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
-            }
-          } catch (error) {
-            console.error("Erro ao buscar endereço por coordenadas:", error);
-            alert("Erro ao tentar obter o endereço.");
-          }
-        });
-      },
-      function () {
-        alert("Não foi possível obter sua localização. Verifique se o acesso à geolocalização está permitido.");
-      }
-    );
-  } else {
-    alert("Geolocalização não é suportada pelo seu navegador.");
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      map = L.map('map', {
+        center: [latitude, longitude],
+        zoom: 16,
+        minZoom: 10,
+        maxZoom: 19
+      });
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        minZoom: 10,
+        maxZoom: 19,
+      }).addTo(map);
+
+      marker = L.marker([latitude, longitude]).addTo(map);
+
+      buscarEnderecoPorCoordenadas(latitude, longitude);
+
+      map.on('click', async function (e) {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        buscarEnderecoPorCoordenadas(lat, lng);
+      });
+    },
+    function () {
+      alert("Não foi possível obter sua localização. Verifique se o acesso à geolocalização está permitido.");
+    }
+  );
+} else {
+  alert("Geolocalização não é suportada pelo seu navegador.");
+}
+
+// ============================
+// FUNÇÃO PARA BUSCAR ENDEREÇO PELO MAPA
+// ============================
+async function buscarEnderecoPorCoordenadas(lat, lon) {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
+    const data = await response.json();
+
+    if (data?.address?.postcode) {
+      document.getElementById('cep').value = data.address.postcode;
+    }
+
+    if (data?.address) {
+      const rua = data.address.road || '';
+      const bairro = data.address.suburb || '';
+      const cidade = data.address.city || data.address.town || data.address.village || '';
+      const estado = data.address.state || '';
+      enderecoAtual = `${rua}, ${bairro}, ${cidade}, ${estado}`;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar endereço por coordenadas:", error);
+    alert("Erro ao tentar obter o endereço.");
   }
 }
 
@@ -85,13 +69,16 @@ window.onload = function () {
 // EVENTOS AO CARREGAR A PÁGINA
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
+
   const whatsappInput = document.getElementById("whatsapp");
   const cepInput = document.getElementById("cep");
 
+  // ========== Máscara WhatsApp ==========
   if (whatsappInput) {
     IMask(whatsappInput, { mask: '(00) 00000-0000' });
   }
 
+  // ========== Máscara CEP + Buscar endereço ==========
   if (cepInput) {
     IMask(cepInput, { mask: '00000-000' });
 
@@ -126,6 +113,66 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ========== Marcação visual dos checkboxes ==========
+  const itemLabels = document.querySelectorAll('.items-grid .item');
+
+  itemLabels.forEach(label => {
+    const checkbox = label.querySelector('input[type="checkbox"]');
+
+    checkbox.addEventListener('change', () => {
+      label.classList.toggle('selected', checkbox.checked);
+    });
+
+    if (checkbox.checked) {
+      label.classList.add('selected');
+    }
+  });
+
+  // ========== Preview da imagem ==========
+  const fileInput = document.getElementById('fileInput');
+  const uploadDiv = document.getElementById('uploadDiv');
+  const previewImg = document.getElementById('preview');
+  const previewText = document.getElementById('previewText');
+  const removeImageBtn = document.getElementById('removeImageBtn');
+
+  fileInput?.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadDiv.style.backgroundImage = `url('${e.target.result}')`;
+
+        previewImg.style.display = 'none';
+        previewText.style.display = 'none';
+        removeImageBtn.style.display = 'block';
+
+        uploadDiv.classList.add('sem-borda');
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  removeImageBtn?.addEventListener('click', function () {
+    uploadDiv.style.backgroundImage = '';
+    previewImg.style.display = 'block';
+    previewText.style.display = 'block';
+    removeImageBtn.style.display = 'none';
+    fileInput.value = '';
+    uploadDiv.classList.remove('sem-borda');
+  });
+
+  // ========== Evita envio com Enter ==========
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        input.blur();
+      }
+    });
+  });
+
+  // ========== Envio do formulário ==========
   const botaoCadastrar = document.querySelector('.button-submit');
   const modal = document.getElementById('success-modal');
 
@@ -135,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const formData = new FormData();
 
-      // Campos básicos
       formData.append('nome', document.getElementById("nome").value);
       formData.append('email', document.getElementById("email").value);
       formData.append('whatsapp', document.getElementById("whatsapp").value);
@@ -143,20 +189,17 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append('complemento', document.getElementById("complemento").value);
       formData.append('endereco', enderecoAtual);
 
-      // Coordenadas
       if (marker) {
         const latlng = marker.getLatLng();
         formData.append('latitude', latlng.lat);
         formData.append('longitude', latlng.lng);
       }
 
-      // Imagem
       const imagemInput = document.getElementById("fileInput");
       if (imagemInput?.files.length > 0) {
         formData.append('imagem', imagemInput.files[0]);
       }
 
-      // ✅ Adiciona checkboxes selecionados
       const checkboxes = document.querySelectorAll('.items-grid input[type="checkbox"]');
       checkboxes.forEach(checkbox => {
         if (checkbox.checked) {
@@ -164,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Envio para o backend
       try {
         const response = await fetch('/cadastrar', {
           method: 'POST',
@@ -177,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok) {
           modal.classList.remove('hidden');
 
-          // Após 2 segundos, redireciona para a página de consulta
           setTimeout(() => {
             modal.classList.add('hidden');
             window.location.href = '/consultar';
@@ -185,57 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           alert(resultado.erro || "Erro ao cadastrar.");
         }
-
       } catch (err) {
         console.error("Erro ao enviar dados:", err);
         alert("Falha ao enviar os dados.");
       }
     });
   }
-
-  const fileInput = document.getElementById('fileInput');
-  const uploadDiv = document.querySelector('.upload');
-  const previewImg = document.getElementById('preview');
-  const infoText = uploadDiv?.querySelector('p');
-
-  fileInput?.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        uploadDiv.style.backgroundImage = `url('${e.target.result}')`;
-        previewImg.style.display = 'none';
-        if (infoText) infoText.style.display = 'none';
-        uploadDiv.classList.add('sem-borda');
-      }
-      reader.readAsDataURL(file);
-    }
-  });
-
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => {
-    input.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        input.blur();
-      }
-    });
-  });
-
-  // === CHECKBOX VISUAL SELEÇÃO ===
-  const itemLabels = document.querySelectorAll('.items-grid .item');
-
-  itemLabels.forEach(label => {
-    const checkbox = label.querySelector('input[type="checkbox"]');
-
-    // Atualiza visualmente quando o checkbox muda
-    checkbox.addEventListener('change', () => {
-      label.classList.toggle('selected', checkbox.checked);
-    });
-
-    // Marca visualmente se já estiver selecionado ao carregar
-    if (checkbox.checked) {
-      label.classList.add('selected');
-    }
-  });
 });

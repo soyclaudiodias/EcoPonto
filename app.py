@@ -3,13 +3,17 @@ from database import conectar
 import os
 import uuid
 
+# ===========================
+# CONFIGURAÇÃO INICIAL
+# ===========================
 app = Flask(__name__)
-
-# Diretório de upload
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# ===========================
+# ROTAS PRINCIPAIS
+# ===========================
 @app.route('/')
 def home():
     return render_template('Inicio.html')
@@ -22,10 +26,13 @@ def consultar_form():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+# ===========================
+# CADASTRO DE NOVO PONTO
+# ===========================
 @app.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar_form():
     if request.method == 'GET':
-        return render_template('Cadastro.html')
+        return render_template('Cadastro.html', ponto={})
 
     try:
         nome = request.form.get('nome')
@@ -37,45 +44,12 @@ def cadastrar_form():
         longitude_str = request.form.get('longitude')
         endereco = request.form.get('endereco')
 
-# Coleta os valores dos checkboxes
         reciclaveis = request.form.get('reciclaveis') == 'on'
         organicos = request.form.get('organicos') == 'on'
         eletronicos = request.form.get('eletronicos') == 'on'
         pilhas_baterias = request.form.get('pilhas_baterias') == 'on'
         oleo_cozinha = request.form.get('oleo_cozinha') == 'on'
         lampadas = request.form.get('lampadas') == 'on'
-
-# Cria lista de resíduos selecionados
-        itens_selecionados = []
-
-        if reciclaveis:
-            itens_selecionados.append("Recicláveis")
-        if organicos:
-            itens_selecionados.append("Orgânicos")
-        if eletronicos:
-            itens_selecionados.append("Eletrônicos")
-        if pilhas_baterias:
-            itens_selecionados.append("Pilhas e Baterias")
-        if oleo_cozinha:
-            itens_selecionados.append("Óleo de Cozinha")
-        if lampadas:
-            itens_selecionados.append("Lâmpadas")
-
-        # Impressão no terminal
-        if itens_selecionados:
-            print("Itens selecionados:", ", ".join(itens_selecionados))
-        else:
-            print("Nenhum item de coleta foi selecionado.")
-
-
-
-        print("Resíduos selecionados:")
-        print(f"  Recicláveis: {reciclaveis}")
-        print(f"  Orgânicos: {organicos}")
-        print(f"  Eletrônicos: {eletronicos}")
-        print(f"  Pilhas e Baterias: {pilhas_baterias}")
-        print(f"  Óleo de Cozinha: {oleo_cozinha}")
-        print(f"  Lâmpadas: {lampadas}")
 
         if not latitude_str or not longitude_str:
             return jsonify({"erro": "Latitude e Longitude são obrigatórios!"}), 400
@@ -85,25 +59,22 @@ def cadastrar_form():
 
         imagem = request.files.get('imagem')
         imagem_filename = None
-
         if imagem:
             imagem_filename = str(uuid.uuid4()) + os.path.splitext(imagem.filename)[1]
             imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], imagem_filename))
 
         conn = conectar()
         cursor = conn.cursor()
-
         cursor.execute("""
             INSERT INTO ponto_coleta (
                 nome, email, whatsapp, cep, complemento, imagem, latitude, longitude, endereco,
                 reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas
-            ) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            nome, email, whatsapp, cep, complemento, imagem_filename, latitude, longitude, endereco,
+            nome, email, whatsapp, cep, complemento, imagem_filename,
+            latitude, longitude, endereco,
             reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas
         ))
-
         conn.commit()
         cursor.close()
         conn.close()
@@ -114,6 +85,9 @@ def cadastrar_form():
         print(f"Erro ao cadastrar: {e}")
         return jsonify({"erro": f"Erro ao cadastrar ponto de coleta: {str(e)}"}), 500
 
+# ===========================
+# EDIÇÃO DE PONTO EXISTENTE
+# ===========================
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar_ponto(id):
     if request.method == 'GET':
@@ -123,7 +97,10 @@ def editar_ponto(id):
         ponto = cursor.fetchone()
         cursor.close()
         conn.close()
+
         if ponto:
+            ponto['complemento'] = ponto['complemento'] or ''
+            ponto['imagem'] = ponto['imagem'] or 'imagem_padrao.png'
             return render_template('Editar.html', ponto=ponto)
         else:
             return "Ponto não encontrado", 404
@@ -138,14 +115,15 @@ def editar_ponto(id):
         longitude = float(request.form.get('longitude'))
         endereco = request.form.get('endereco')
 
-        reciclaveis = request.form.get('reciclaveis')
-        organicos = request.form.get('organicos')
-        eletronicos = request.form.get('eletronicos')
-        pilhas_baterias = request.form.get('pilhas_baterias')
-        oleo_cozinha = request.form.get('oleo_cozinha')
-        lampadas = request.form.get('lampadas')
+        reciclaveis = request.form.get('reciclaveis') == 'on'
+        organicos = request.form.get('organicos') == 'on'
+        eletronicos = request.form.get('eletronicos') == 'on'
+        pilhas_baterias = request.form.get('pilhas_baterias') == 'on'
+        oleo_cozinha = request.form.get('oleo_cozinha') == 'on'
+        lampadas = request.form.get('lampadas') == 'on'
 
         imagem = request.files.get('imagem')
+        imagem_removida = request.form.get('imagemRemovida') == 'true'
 
         conn = conectar()
         cursor = conn.cursor()
@@ -153,29 +131,23 @@ def editar_ponto(id):
         if imagem:
             imagem_filename = str(uuid.uuid4()) + os.path.splitext(imagem.filename)[1]
             imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], imagem_filename))
-            cursor.execute("""
-                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s,
-                imagem=%s, latitude=%s, longitude=%s, endereco=%s,
-                reciclaveis=%s, organicos=%s, eletronicos=%s, pilhas_baterias=%s, oleo_cozinha=%s, lampadas=%s
-                WHERE id=%s
-            """, (
-                nome, email, whatsapp, cep, complemento,
-                imagem_filename, latitude, longitude, endereco,
-                reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas,
-                id
-            ))
+        elif imagem_removida:
+            imagem_filename = None
         else:
-            cursor.execute("""
-                UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s,
-                latitude=%s, longitude=%s, endereco=%s,
-                reciclaveis=%s, organicos=%s, eletronicos=%s, pilhas_baterias=%s, oleo_cozinha=%s, lampadas=%s
-                WHERE id=%s
-            """, (
-                nome, email, whatsapp, cep, complemento,
-                latitude, longitude, endereco,
-                reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas,
-                id
-            ))
+            cursor.execute("SELECT imagem FROM ponto_coleta WHERE id = %s", (id,))
+            imagem_filename = cursor.fetchone()[0]
+
+        cursor.execute("""
+            UPDATE ponto_coleta SET nome=%s, email=%s, whatsapp=%s, cep=%s, complemento=%s,
+            imagem=%s, latitude=%s, longitude=%s, endereco=%s,
+            reciclaveis=%s, organicos=%s, eletronicos=%s, pilhas_baterias=%s, oleo_cozinha=%s, lampadas=%s
+            WHERE id=%s
+        """, (
+            nome, email, whatsapp, cep, complemento, imagem_filename,
+            latitude, longitude, endereco,
+            reciclaveis, organicos, eletronicos, pilhas_baterias, oleo_cozinha, lampadas,
+            id
+        ))
 
         conn.commit()
         cursor.close()
@@ -187,6 +159,9 @@ def editar_ponto(id):
         print(f"Erro ao editar: {e}")
         return jsonify({"erro": f"Erro ao editar ponto de coleta: {str(e)}"}), 500
 
+# ===========================
+# BUSCA DE UM PONTO PELO NOME
+# ===========================
 @app.route('/buscar', methods=['GET'])
 def buscar():
     nome = request.args.get('nome')
@@ -214,24 +189,48 @@ def buscar():
     else:
         return jsonify({'mensagem': 'Ponto de coleta não encontrado'}), 404
 
+# ===========================
+# LISTA TODOS OS PONTOS (API)
+# ===========================
 @app.route('/api/pontos')
 def listar_pontos():
     try:
         conn = conectar()
         cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT * FROM ponto_coleta
-        """)
-
+        cursor.execute("SELECT * FROM ponto_coleta")
         pontos = cursor.fetchall()
         cursor.close()
         conn.close()
+
+        for ponto in pontos:
+            if not ponto.get('imagem'):
+                ponto['imagem'] = '../static/assets/imagem_padrao.png'
+
+            categorias = []
+            if ponto.get('reciclaveis'):
+                categorias.append("Recicláveis")
+            if ponto.get('organicos'):
+                categorias.append("Orgânicos")
+            if ponto.get('eletronicos'):
+                categorias.append("Eletrônicos")
+            if ponto.get('pilhas_baterias'):
+                categorias.append("Pilhas e Baterias")
+            if ponto.get('oleo_cozinha'):
+                categorias.append("Óleo de Cozinha")
+            if ponto.get('lampadas'):
+                categorias.append("Lâmpadas")
+
+            ponto['categorias'] = ", ".join(categorias) if categorias else "Sem categorias"
+
         return jsonify(pontos)
+
     except Exception as e:
         print(f"Erro ao consultar: {e}")
         return jsonify({"erro": str(e)}), 500
 
+# ===========================
+# REMOÇÃO DE UM PONTO
+# ===========================
 @app.route('/remover/<int:id>', methods=['DELETE'])
 def remover(id):
     try:
@@ -241,12 +240,14 @@ def remover(id):
         conn.commit()
         cursor.close()
         conn.close()
-
         return jsonify({"message": "Ponto de coleta removido com sucesso!"}), 200
 
     except Exception as e:
         print(f"Erro ao remover: {e}")
         return jsonify({"erro": f"Erro ao remover ponto de coleta: {str(e)}"}), 500
 
+# ===========================
+# EXECUÇÃO DO SERVIDOR
+# ===========================
 if __name__ == '__main__':
     app.run(debug=True)

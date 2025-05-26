@@ -1,223 +1,143 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar | EcoPonto</title>
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/logo2.png') }}">
+
+  <!-- Ícone e fontes -->
+  <link rel="icon" href="{{ url_for('static', filename='assets/logo2.png') }}">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS e Script -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style/Editar.css') }}">
-  <script src="{{ url_for('static', filename='script/Editar.js') }}"></script>
+  <script src="{{ url_for('static', filename='script/Editar.js') }}" defer></script>
   <script src="https://unpkg.com/imask"></script>
 </head>
 
 <body>
+  <!-- Cabeçalho -->
   <header>
-    <a class="logo" href="Inicio.html">
+    <a class="logo" href="/">
       <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Logotipo">
     </a>
     <div class="back">
-      <a class="back-link" href="../consultar">
+      <a class="back-link" href="/consultar">
         <img src="{{ url_for('static', filename='assets/seta.png') }}" alt="Voltar">
-        Voltar para home</a>
+        Voltar para pesquisa
+      </a>
     </div>
   </header>
 
   <div class="container">
     <h1>Editar ponto de coleta</h1>
 
-    <!-- Upload -->
+    <!-- Upload de imagem -->
     <section>
+      {% set imagem_padrao = ponto.imagem == 'imagem_padrao.png' %}
+      {% set imagem_url = url_for('static', filename='assets/imagem_padrao.png') if imagem_padrao else url_for('uploaded_file', filename=ponto.imagem) %}
       <label for="fileInput">
-        <div class="upload" style="cursor: pointer;">
-          <img id="preview" src="{{ url_for('static', filename='assets/upload.png') }}" alt="Carregar imagem" />
-          <p>Imagem do estabelecimento</p>
+        <div class="upload sem-borda" id="uploadDiv" style="background-image: url('{{ imagem_url }}');">
+          <img id="preview" src="{{ url_for('static', filename='assets/upload.png') }}" style="display: none;" alt="Carregar imagem">
+          <p id="previewText" style="display: none;">Imagem do estabelecimento</p>
+          <button type="button" id="removeImageBtn" class="remove-image">&times;</button>
         </div>
       </label>
-      <input type="file" id="fileInput" name="imagem" accept="image/*" style="display: none;">
+      <input type="file" id="fileInput" name="imagem" accept="image/*" hidden>
+      <input type="hidden" id="imagemRemovida" name="imagemRemovida" value="false">
     </section>
 
     <!-- Dados -->
     <section>
-      <div>
-        <h2>Dados</h2>
-        <label for="nome">Nome da entidade</label>
-        <input type="text" id="nome" class="input-custom" placeholder="">
+      <h2>Dados</h2>
+      <label for="nome">Nome da entidade</label>
+      <input type="text" id="nome" class="input-custom" value="{{ ponto.nome }}">
 
-        <label for="email">E-mail</label>
-        <input type="email" id="email" class="input-custom" placeholder="">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" class="input-custom" value="{{ ponto.email }}">
 
-        <label for="whatsapp">WhatsApp</label>
-        <input type="text" id="whatsapp" class="input-custom" placeholder="">
-      </div>
+      <label for="whatsapp">WhatsApp</label>
+      <input type="text" id="whatsapp" class="input-custom" value="{{ ponto.whatsapp }}">
     </section>
 
-    <!-- Endereço -->
+    <!-- Endereço e mapa -->
     <section>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2>Endereço</h2>
-        <small>Selecione o endereço no mapa</small>
+        <small>Selecione no mapa</small>
       </div>
-      <div id="map" style="background-color:#f0f0f5"></div>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+      <div id="map"></div>
+
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
       <div class="form-row">
         <label for="cep">CEP</label>
-        <input type="text" id="cep" class="input-custom">
+        <input type="text" id="cep" class="input-custom" value="{{ ponto.cep }}">
       </div>
 
       <div class="form-row">
         <label for="complemento">Complemento</label>
-        <input type="text" id="complemento" class="input-custom">
+        <input type="text" id="complemento" class="input-custom" value="{{ ponto.complemento }}">
       </div>
+
+      <!-- Campo oculto para armazenar o endereço -->
+      <input type="hidden" id="endereco" name="endereco" value="{{ ponto.endereco or '' }}">
     </section>
-
-    <!-- Horários de Funcionamento
-    <section class="horarios-funcionamento">
-      <h2>Horários de Funcionamento</h2>
-
-      <div class="dias-container">
-        <div class="dia">
-          <span>Domingo (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="domingo_inicio">
-            <input type="time" name="domingo_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="domingo_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Segunda (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="segunda_inicio">
-            <input type="time" name="segunda_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="segunda_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Terça (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="terca_inicio">
-            <input type="time" name="terca_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="terca_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Quarta (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="quarta_inicio">
-            <input type="time" name="quarta_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="quarta_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Quinta (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="quinta_inicio">
-            <input type="time" name="quinta_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="quinta_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Sexta (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="sexta_inicio">
-            <input type="time" name="sexta_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="sexta_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-
-        <div class="dia">
-          <span>Sábado (Início/Fim)</span>
-          <div class="horarios">
-            <input type="time" name="sabado_inicio">
-            <input type="time" name="sabado_fim">
-          </div>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" name="sabado_disable">
-            <span>Desabilitar</span>
-          </label>
-        </div>
-      </div>
-    </section>
-    -->
 
     <!-- Itens de coleta -->
     <section>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2>Ítens de coleta</h2>
-        <small>Selecione um ou mais ítens abaixo</small>
+        <small>Selecione um ou mais</small>
       </div>
+
       <div class="items-grid">
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/residuos_reciclavel.png') }}" alt="Resíduos Recicláveis">
-          <span>Resíduos Recicláveis</span>
-        </div>
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/residuos_organicos.png') }}" alt="Resíduos Orgânicos">
-          <span>Resíduos Orgânicos</span>
-        </div>
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/residuos_eletronicos.png') }}" alt="Resíduos Eletrônicos">
-          <span>Resíduos Eletrônicos</span>
-        </div>
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/pilhas_baterias.png') }}" alt="Pilhas e Baterias">
-          <span>Pilhas e Baterias</span>
-        </div>
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/oleo_de_cozinha.png') }}" alt="Óleo de Cozinha">
-          <span>Óleo de Cozinha</span>
-        </div>
-        <div class="item">
-          <img src="{{ url_for('static', filename='assets/lampadas.png') }}" alt="Lâmpadas">
-          <span>Lâmpadas</span>
-        </div>
-      </div>
+      <label class="item">
+        <input type="checkbox" name="reciclaveis" {% if ponto.reciclaveis %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/residuos_reciclavel.png') }}" alt="Resíduos Recicláveis">
+        <span>Recicláveis</span>
+      </label>
+
+      <label class="item">
+        <input type="checkbox" name="organicos" {% if ponto.organicos %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/residuos_organicos.png') }}" alt="Resíduos Orgânicos">
+        <span>Orgânicos</span>
+      </label>
+
+      <label class="item">
+        <input type="checkbox" name="eletronicos" {% if ponto.eletronicos %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/residuos_eletronicos.png') }}" alt="Resíduos Eletrônicos">
+        <span>Eletrônicos</span>
+      </label>
+
+      <label class="item">
+        <input type="checkbox" name="pilhas_baterias" {% if ponto.pilhas_baterias %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/pilhas_baterias.png') }}" alt="Pilhas e Baterias">
+        <span>Pilhas<br>e Baterias</span>
+      </label>
+
+      <label class="item">
+        <input type="checkbox" name="oleo_cozinha" {% if ponto.oleo_cozinha %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/oleo_de_cozinha.png') }}" alt="Óleo de Cozinha">
+        <span>Óleo de<br>Cozinha</span>
+      </label>
+
+      <label class="item">
+        <input type="checkbox" name="lampadas" {% if ponto.lampadas %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='assets/lampadas.png') }}" alt="Lâmpadas">
+        <span>Lâmpadas</span>
+      </label>
+    </div>
     </section>
 
     <!-- Botões -->
     <button class="button-submit">Alterar</button>
-    <button class="button-submit">Deletar</button>
+    <button id="btn-deletar" data-id="{{ ponto.id }}" class="button-delete">Deletar</button>
   </div>
 
-  <!-- Modal de confirmação genérico -->
-  <div id="confirm-modal" class="modal hidden">
-    <div class="confirm-content">
-      <p id="confirm-text">Tem certeza?</p>
-      <div class="confirm-buttons">
-        <button id="confirm-action" class="confirm-btn"></button>
-        <button id="cancel-action" class="cancel-btn">Cancelar</button>
-      </div>
-    </div>
-  </div>
-  
+  <!-- Modal de sucesso -->
   <div id="success-modal" class="modal hidden">
     <div class="modal-content">
       <img src="{{ url_for('static', filename='assets/check.png') }}" alt="Check" />
@@ -225,4 +145,3 @@
     </div>
   </div>
 </body>
-</html>

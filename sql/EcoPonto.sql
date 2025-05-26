@@ -32,14 +32,9 @@ INSERT INTO ponto_coleta (
 )
 VALUES 
     (
-        'Ponto A', 'contato@pontoa.com', '11987654321', '12345678', 'Apto 101', 'imagem1.jpg',
-        -23.550520, -46.633308, 'Rua A, 123',
+        'Ponto A', 'contato@pontoa.com', '11987654321', '01302-907', NULL, NULL,
+        -23.54905440, -46.65220850, 'Rua da Consolação, 930',
         TRUE, FALSE, TRUE, TRUE, FALSE, TRUE
-    ),
-    (
-        'Ponto B', 'contato@pontob.com', '11998765432', '23456789', 'Sala 202', 'imagem2.jpg',
-        -23.556870, -46.618364, 'Rua B, 456',
-        TRUE, TRUE, FALSE, FALSE, TRUE, TRUE
     );
 
 -- 5. Verificar os dados inseridos

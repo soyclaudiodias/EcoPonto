@@ -1,4 +1,6 @@
-/* ======== BASE ======== */
+/* ========================
+   BASE
+   ======================== */
 body {
   margin: 30px 200px;
   padding: 0 20px;
@@ -7,7 +9,9 @@ body {
   color: #322153;
 }
 
-/* ======== TIPOGRAFIA ======== */
+/* ========================
+   TIPOGRAFIA
+   ======================== */
 h1 {
   max-width: 400px;
   margin: 40px 0px;
@@ -15,7 +19,9 @@ h1 {
   line-height: 1.2;
 }
 
-/* ======== ESTRUTURA GERAL ======== */
+/* ========================
+   ESTRUTURA GERAL
+   ======================== */
 .container {
   max-width: 600px;
   margin: 40px auto;
@@ -24,7 +30,9 @@ h1 {
   border-radius: 8px;
 }
 
-/* ======== HEADER ======== */
+/* ========================
+   HEADER
+   ======================== */
 header {
   display: flex;
   align-items: center;
@@ -45,7 +53,9 @@ header {
   height: 40px;
 }
 
-/* ======== VOLTAR / BACK LINK ======== */
+/* ========================
+   VOLTAR / BACK LINK
+   ======================== */
 .back {
   display: flex;
   align-items: center;
@@ -61,13 +71,15 @@ header {
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px; /* Espaço entre o ícone e o texto */
+  gap: 6px;
   text-decoration: none;
   font-weight: bold;
-  color: #322153; /* Altere conforme o tema */
+  color: #322153;
 }
 
-/* ======== FORMULÁRIO ======== */
+/* ========================
+   FORMULÁRIO
+   ======================== */
 section {
   margin-top: 30px;
 }
@@ -121,7 +133,9 @@ input[type="time"]:focus {
   flex: 1;
 }
 
-/* ======== BOTÃO ======== */
+/* ========================
+   BOTÃO
+   ======================== */
 .button-submit {
   background: #34CB79;
   color: white;
@@ -141,7 +155,9 @@ input[type="time"]:focus {
   background: #2FB86E;
 }
 
-/* ======== MAPA ======== */
+/* ========================
+   MAPA
+   ======================== */
 #map {
   width: 100%;
   height: 400px;
@@ -154,8 +170,27 @@ input[type="time"]:focus {
   display: none !important;
 }
 
-/* ======== UPLOAD DE IMAGEM ======== */
+/* ========================
+   UPLOAD DE IMAGEM
+   ======================== */
+.remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+  display: none;
+}
+
 .upload {
+  position: relative;
   border: 2px dashed #2FB86E !important;
   border-radius: 8px;
   background: #e6f7ec;
@@ -182,7 +217,10 @@ input[type="time"]:focus {
   border: none !important;
 }
 
-/* ======== GRADE DE ITENS ======== */
+/* ========================
+   GRADE DE ITENS
+   ======================== */
+
 .items-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -193,10 +231,10 @@ input[type="time"]:focus {
   background: #e6f7ec;
   border: 2px solid transparent;
   border-radius: 8px;
-  padding: 54px 16px;
+  padding: 64px 48px;
   text-align: center;
   cursor: pointer;
-  transition: border 0.3s;
+  transition: border-color 0.3s, background-color 0.3s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -209,15 +247,6 @@ input[type="time"]:focus {
 
 .item.selected {
   border: 2px solid #2FB86E;
-  background-color: #dff5e7;
-}
-
-.items-grid .item {
-  padding: 28px;
-  transition: border-color 0.3s, background-color 0.3s;
-}
-
-.items-grid .item.selected {
   background-color: #f0fff5;
 }
 
@@ -235,65 +264,9 @@ input[type="time"]:focus {
   font-size: 14px;
 }
 
-/* ======== HORÁRIOS DE FUNCIONAMENTO ======== */
-.horarios-funcionamento {
-  margin-top: 40px;
-}
-
-.dias-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dia {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.dia span {
-  width: 175px;
-}
-
-.horarios {
-  display: flex;
-  gap: 12px;
-  background-color: #f0f0f5;
-  border-radius: 8px;
-  padding: 8px;
-}
-
-.horarios input[type="time"] {
-  background: transparent;
-  border: none;
-  cursor: text;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: 4px;
-}
-
-input[type="time"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-}
-
-.disabled-day > span,
-.disabled-day input[type="time"] {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-/* ======== CHECKBOX ======== */
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  font-family: 'Roboto', sans-serif;
-  gap: 6px;
-  margin-left: 20px;
-  cursor: pointer;
-}
-
+/* ========================
+   CHECKBOX
+   ======================== */
 input[type="checkbox"]:hover {
   cursor: pointer;
 }
@@ -304,7 +277,9 @@ input[type="checkbox"]:hover {
   pointer-events: none;
 }
 
-/* ======== MODAL ======== */
+/* ========================
+   MODAL
+   ======================== */
 .modal {
   position: fixed;
   top: 0;
@@ -337,7 +312,6 @@ input[type="checkbox"]:hover {
 }
 
 .modal-content {
-  color: white;
   text-align: center;
   font-size: 24px;
 }
@@ -351,23 +325,4 @@ input[type="checkbox"]:hover {
 
 .hidden {
   display: none;
-}
-
-.items-grid .item {
-  background: #e6f7ec;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 64px 48px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.3s, background-color 0.3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.items-grid .item.selected {
-  background-color: #f0fff5;
-  border: 2px solid #2FB86E;
 }

@@ -1,9 +1,15 @@
+/* ========================
+   Reset padrão
+   ======================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ========================
+   Estilo global
+   ======================== */
 body {
   margin: 30px 200px;
   padding: 0 20px;
@@ -12,28 +18,14 @@ body {
   color: #322153;
 }
 
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
-}
-
-header,
-.header {
+/* ========================
+   Cabeçalho (logo + voltar)
+   ======================== */
+header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-header {
   padding: 50px auto;
-}
-
-.header {
-  background-color: #f4f4f8;
-  padding: 2rem 4rem;
 }
 
 .logo {
@@ -64,12 +56,15 @@ header {
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px; /* Espaço entre o ícone e o texto */
+  gap: 6px;
   text-decoration: none;
   font-weight: bold;
-  color: #322153; /* Altere conforme o tema */
+  color: #322153;
 }
 
+/* ========================
+   Área principal
+   ======================== */
 .main {
   padding: 0rem 2rem;
 }
@@ -80,6 +75,9 @@ header {
   margin-bottom: 2rem;
 }
 
+/* ========================
+   Cards dos pontos
+   ======================== */
 .cards {
   display: flex;
   gap: 2rem;
@@ -111,7 +109,7 @@ header {
 .card .category {
   font-size: 1rem;
   color: #34cb79;
-  margin: 0 1rem 1rem 1rem;
+  margin: 0 1rem 1rem;
   line-height: 1.4;
 }
 
@@ -121,12 +119,14 @@ header {
   margin: 0 1rem;
 }
 
-/* Esconde por padrão */
+/* ========================
+   Responsividade (Aviso mobile)
+   ======================== */
 .mobile-warning {
   display: none;
 }
 
-/* Quando a tela for menor que 1024px */
+/* Esconde conteúdo e mostra aviso em telas pequenas */
 @media (max-width: 1023px) {
   .mobile-warning {
     display: flex;
@@ -145,12 +145,14 @@ header {
     z-index: 9999;
   }
 
-  /* Oculta o conteúdo da aplicação */
   body > *:not(.mobile-warning) {
     display: none !important;
   }
 }
 
+/* ========================
+   Barra de pesquisa
+   ======================== */
 label {
   width: 88px;
   height: 16px;
@@ -158,11 +160,9 @@ label {
   font-size: 14px;
   font-family: Roboto;
   font-weight: 400;
-  word-wrap: break-word;
 }
 
-input[type="text"],
-input[type="email"] {
+input[type="text"] {
   width: 96%;
   padding: 12px;
   border: 1px solid #dcdce6;

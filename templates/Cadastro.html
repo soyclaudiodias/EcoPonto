@@ -9,12 +9,12 @@
   <!-- Ícone da aba -->
   <link rel="icon" type="image/x-icon" href="../static/assets/logo2.png">
 
-  <!-- Fonte Roboto -->
+  <!-- Fonte Roboto do Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-  <!-- Estilos e scripts -->
-  <link rel="stylesheet" href="./static/style/Cadastro.css">
-  <script src="./static/script/Cadastro.js"></script>
+  <!-- Estilo e scripts -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/Cadastro.css') }}">
+  <script src="{{ url_for('static', filename='script/Cadastro.js') }}"></script>
   <script src="https://unpkg.com/imask"></script>
 </head>
 
@@ -22,8 +22,8 @@
 
   <!-- Cabeçalho com logo e botão de voltar -->
   <header>
-    <a class="logo" href="Inicio.html">
-      <img src="./static/assets/logo.png" alt="Logotipo">
+    <a class="logo" href="/">
+      <img src="../static/assets/logo.png" alt="Logotipo">
     </a>
     <div class="back">
       <a class="back-link" href="../">
@@ -33,28 +33,30 @@
     </div>
   </header>
 
-  <!-- Container principal -->
+  <!-- Container principal do formulário -->
   <div class="container">
     <h1>Cadastro do ponto de coleta</h1>
 
-    <!-- Formulário de cadastro -->
+    <!-- Formulário de envio de dados -->
     <form action="/cadastrar" method="POST" enctype="multipart/form-data">
 
-      <!-- Upload de imagem -->
+      <!-- Upload da imagem do ponto -->
       <section>
         <label for="fileInput">
-          <div class="upload" style="cursor: pointer;">
+          <div class="upload" id="uploadDiv" style="cursor: pointer;">
+            <button type="button" id="removeImageBtn" class="remove-image" style="display: none;">&times;</button>
             <img id="preview" src="../static/assets/upload.png" alt="Carregar imagem" />
-            <p>Imagem do estabelecimento</p>
+            <p id="previewText">Imagem do estabelecimento</p>
           </div>
         </label>
         <input type="file" id="fileInput" name="imagem" accept="image/*" style="display: none;">
       </section>
 
-      <!-- Informações da entidade -->
+      <!-- Dados da entidade -->
       <section>
         <div>
           <h2>Dados</h2>
+
           <label for="nome">Nome da entidade</label>
           <input type="text" id="nome" name="nome" class="input-custom" required>
 
@@ -66,23 +68,23 @@
         </div>
       </section>
 
-      <!-- Endereço + Mapa -->
+      <!-- Endereço com seleção no mapa -->
       <section>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h2>Endereço</h2>
           <small>Selecione o endereço no mapa</small>
         </div>
 
-        <!-- Mapa (Leaflet.js) -->
+        <!-- Mapa com Leaflet.js -->
         <div id="map" style="background-color:#f0f0f5"></div>
 
-        <!-- Estilos e scripts do Leaflet -->
+        <!-- Folhas de estilo e scripts do Leaflet -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
                 integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-        <!-- Campos complementares do endereço -->
+        <!-- Campos complementares -->
         <div class="form-row">
           <label for="cep">CEP</label>
           <input type="text" id="cep" name="cep" class="input-custom">
@@ -94,182 +96,63 @@
         </div>
       </section>
 
-      <!-- Horários de Funcionamento
-      <section class="horarios-funcionamento">
-        <h2>Horários de Funcionamento</h2>
-        <div class="dias-container">
-
-          <div class="dia">
-            <span>Domingo (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="domingo">
-              <input type="time" name="hora_inicio[]" id="domingo_inicio">
-              <input type="time" name="hora_fim[]" id="domingo_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="domingo_disable" id="domingo_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Segunda (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="segunda">
-              <input type="time" name="hora_inicio[]" id="segunda_inicio">
-              <input type="time" name="hora_fim[]" id="segunda_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="segunda_disable" id="segunda_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Terça (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="terca">
-              <input type="time" name="hora_inicio[]" id="terca_inicio">
-              <input type="time" name="hora_fim[]" id="terca_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="terca_disable" id="terca_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Quarta (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="quarta">
-              <input type="time" name="hora_inicio[]" id="quarta_inicio">
-              <input type="time" name="hora_fim[]" id="quarta_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="quarta_disable" id="quarta_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Quinta (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="quinta">
-              <input type="time" name="hora_inicio[]" id="quinta_inicio">
-              <input type="time" name="hora_fim[]" id="quinta_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="quinta_disable" id="quinta_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Sexta (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="sexta">
-              <input type="time" name="hora_inicio[]" id="sexta_inicio">
-              <input type="time" name="hora_fim[]" id="sexta_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="sexta_disable" id="sexta_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-          <div class="dia">
-            <span>Sábado (Início/Fim)</span>
-            <div class="horarios">
-              <input type="hidden" name="dias[]" value="sabado">
-              <input type="time" name="hora_inicio[]" id="sabado_inicio">
-              <input type="time" name="hora_fim[]" id="sabado_fim">
-            </div>
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="sabado_disable" id="sabado_disable">
-              <span>Desabilitar</span>
-            </label>
-          </div>
-
-        </div>
-      </section> -->
-
-      <!-- Itens de coleta -->
+      <!-- Itens de coleta selecionáveis -->
       <section>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h2>Ítens de coleta</h2>
           <small>Selecione um ou mais ítens abaixo</small>
         </div>
 
-        <!-- Grade de ícones dos resíduos -->
         <div class="items-grid">
           <label class="item">
-            <input type="checkbox" name="reciclaveis" />
-            <img src="../static/assets/residuos_reciclavel.png" alt="Resíduos Recicláveis">
+            <input type="checkbox" name="reciclaveis">
+            <img src="{{ url_for('static', filename='assets/residuos_reciclavel.png') }}" alt="Resíduos Recicláveis">
             <span>Recicláveis</span>
           </label>
 
           <label class="item">
-            <input type="checkbox" name="organicos" />
-            <img src="../static/assets/residuos_organicos.png" alt="Resíduos Orgânicos">
+            <input type="checkbox" name="organicos">
+            <img src="{{ url_for('static', filename='assets/residuos_organicos.png') }}" alt="Resíduos Orgânicos">
             <span>Orgânicos</span>
           </label>
 
           <label class="item">
-            <input type="checkbox" name="eletronicos" />
-            <img src="../static/assets/residuos_eletronicos.png" alt="Resíduos Eletrônicos">
+            <input type="checkbox" name="eletronicos">
+            <img src="{{ url_for('static', filename='assets/residuos_eletronicos.png') }}" alt="Resíduos Eletrônicos">
             <span>Eletrônicos</span>
           </label>
 
           <label class="item">
-            <input type="checkbox" name="pilhas_baterias" />
-            <img src="../static/assets/pilhas_baterias.png" alt="Pilhas e Baterias">
+            <input type="checkbox" name="pilhas_baterias">
+            <img src="{{ url_for('static', filename='assets/pilhas_baterias.png') }}" alt="Pilhas e Baterias">
             <span>Pilhas e Baterias</span>
           </label>
 
           <label class="item">
-            <input type="checkbox" name="oleo_cozinha" />
-            <img src="../static/assets/oleo_de_cozinha.png" alt="Óleo de Cozinha">
+            <input type="checkbox" name="oleo_cozinha">
+            <img src="{{ url_for('static', filename='assets/oleo_de_cozinha.png') }}" alt="Óleo de Cozinha">
             <span>Óleo de Cozinha</span>
           </label>
 
           <label class="item">
-            <input type="checkbox" name="lampadas" />
-            <img src="../static/assets/lampadas.png" alt="Lâmpadas">
+            <input type="checkbox" name="lampadas">
+            <img src="{{ url_for('static', filename='assets/lampadas.png') }}" alt="Lâmpadas">
             <span>Lâmpadas</span>
           </label>
         </div>
+      </section>
 
-      <!-- Botão de envio -->
+      <!-- Botão para submeter o formulário -->
       <button class="button-submit">Cadastrar</button>
     </form>
   </div>
 
-  <!-- Modal de sucesso (ao cadastrar) -->
+  <!-- Modal de sucesso após cadastro -->
   <div id="success-modal" class="modal hidden">
     <div class="modal-content">
       <img src="../static/assets/check.png" alt="Check" />
       <p>Cadastrado com sucesso!</p>
     </div>
   </div>
-
-  <!-- Modal de confirmação (ação sensível) -->
-  <div id="confirm-modal" class="modal hidden">
-    <div class="confirm-content">
-      <p id="confirm-text">Tem certeza?</p>
-      <div class="confirm-buttons">
-        <button id="confirm-action" class="confirm-btn"></button>
-        <button id="cancel-action" class="cancel-btn">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de resposta genérica de sucesso -->
-  <div id="success-modal-response" class="modal hidden">
-    <div class="modal-content">
-      <img src="../static/assets/check.png" alt="Check" />
-      <p id="success-message">Mensagem aqui</p>
-    </div>
-  </div>
-
 </body>
 </html>
