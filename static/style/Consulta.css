@@ -118,3 +118,30 @@ header {
   color: #6c6c80;
   margin: 0 1rem;
 }
+
+/* ========================
+   Barra de pesquisa
+   ======================== */
+label {
+  width: 88px;
+  height: 16px;
+  color: #6C6C80;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+}
+
+input[type="text"] {
+  width: 96%;
+  padding: 12px;
+  border: 1px solid #dcdce6;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 16px;
+}
+
+nav {
+  padding: 1rem 2rem 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
